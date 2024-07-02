@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 import './CafeInfo.css'; // Import CSS file for styling
 import NewPage from './NewPage'; 
-import RestaurantDetails from './RestaurantDetails'; // Import RestaurantDetails component
 
 interface OperationTime {
   day: string;
@@ -10,7 +9,7 @@ interface OperationTime {
   time_close: string;
 }
 
-interface Restaurant {
+export interface Restaurant { // Ensure Restaurant interface is exported
   id: number;
   name: string;
   categories: string[];
@@ -58,6 +57,9 @@ const CafeInfo: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  // Get unique categories
+  const uniqueCategories = Array.from(new Set(restaurants.flatMap(restaurant => restaurant.categories)));
+
   return (
     <Router>
       <div className="restaurant-list">
@@ -68,11 +70,8 @@ const CafeInfo: React.FC = () => {
             className="category-filter"
           >
             <option value="">Select category...</option>
-            {/* Dynamically populate options from unique categories */}
-            {restaurants.map((restaurant, index) => (
-              restaurant.categories.map((category, idx) => (
-                <option key={idx} value={category}>{category}</option>
-              ))
+            {uniqueCategories.map(category => (
+              <option key={category} value={category}>{category}</option>
             ))}
           </select>
           <input
@@ -91,13 +90,13 @@ const CafeInfo: React.FC = () => {
               <div className="restaurant-details">
                 <h2 className="restaurant-name">{restaurant.name}</h2>
                 <ul className="operation-list">
-                  {restaurant.operation_time?.map((time, index) => {
+                  {restaurant.operation_time?.map((time) => {
                     const currentDate = new Date();
                     const currentDay = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
 
                     if (time.day === currentDay) {
                       return (
-                        <li key={index} className="operation-time">
+                        <li key={time.day} className="operation-time">
                           {time.day}: {time.time_open} - {time.time_close}
                         </li>
                       );
@@ -120,12 +119,10 @@ const CafeInfo: React.FC = () => {
             </Link>
           ))}
         </div>
-      </div>
 
-      {/* Define Routes outside of restaurant-list div */}
-      <Routes>
-        <Route path="/restaurant/:id" element={<RestaurantDetails restaurants={restaurants} />} />
-      </Routes>
+        {/* Render NewPage component which contains the Routes */}
+        <NewPage restaurants={restaurants} />
+      </div>
     </Router>
   );
 };

@@ -8,7 +8,7 @@ interface RestaurantDetailsProps {
 
 const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurants }) => {
   const { id } = useParams<{ id: string }>();
-  const restaurant = restaurants.find(r => r.id === parseInt(id));
+  const restaurant = restaurants.find(r => r.id === parseInt(id || '0', 10)); // Provide a default value for parseInt
 
   if (!restaurant) {
     return <div>Restaurant not found!</div>;
@@ -18,21 +18,12 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({ restaurants }) =>
     <div className="restaurant-details">
       <h2 className="restaurant-name">{restaurant.name}</h2>
       <ul className="operation-list">
-        {restaurant.operation_time?.map((time, index) => {
-          const currentDate = new Date();
-          const currentDay = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
-
-          if (time.day === currentDay) {
-            return (
-              <li key={index} className="operation-time">
-                {time.day}: {time.time_open} - {time.time_close}
-              </li>
-            );
-          }
-          return null;
-        })}
+        {restaurant.operation_time?.map((time, index) => (
+          <li key={index} className="operation-time">
+            {time.day}: {time.time_open} - {time.time_close}
+          </li>
+        ))}
       </ul>
-     
 
       <h3 className="operation-times">Operation Times</h3>
       <div className="image-gallery">
